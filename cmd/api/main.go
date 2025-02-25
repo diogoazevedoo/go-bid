@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/gob"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,11 +13,14 @@ import (
 	"github.com/diogoazevedoo/go-bid/internal/api"
 	"github.com/diogoazevedoo/go-bid/internal/services"
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
 
 func main() {
+	gob.Register(uuid.UUID{})
+
 	if err := godotenv.Load(); err != nil {
 		panic(err)
 	}
