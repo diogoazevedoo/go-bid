@@ -2,12 +2,16 @@ package services
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/diogoazevedoo/go-bid/internal/store/pgstore"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+var ErrProductNotFound = errors.New("product not found")
 
 type ProductService struct {
 	pool    *pgxpool.Pool
@@ -40,4 +44,16 @@ func (ps *ProductService) CreateProduct(
 	}
 
 	return id, nil
+}
+
+func (ps *ProductService) GetProductById(ctx context.Context, productId uuid.UUID) (pgstore.Product, error) {
+	product, err := ps.queries.GetProductById(ctx, productId)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return pgstore.Product{}, ErrProductNotFound
+		}
+		return pgstore.Product{}, err
+	}
+
+	return product, nil
 }
